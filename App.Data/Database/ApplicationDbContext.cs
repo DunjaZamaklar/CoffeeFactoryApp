@@ -9,6 +9,8 @@ namespace App.Data.Database
 
         public DbSet<SupplyOrderStatus> SupplyOrderStatus { get; set; }
 
+        public DbSet<EmployeePosition> EmployeePositions { get; set; }
+
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
     }
 }

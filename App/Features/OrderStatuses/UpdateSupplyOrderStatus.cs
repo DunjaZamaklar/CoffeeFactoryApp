@@ -77,7 +77,7 @@ public class UpdateSupplyOrderStatusEndpoint : CarterModule
 {
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPut("supplyOrderStatus/{id}", async (Guid id, CreateProductRequest request, ISender sender, HttpContext context) =>
+        app.MapPut("supplyOrderStatus/{id}", async (Guid id, CreateSupplyOrderStatusRequest request, ISender sender, HttpContext context) =>
         {
             var command = new UpdateSupplyOrderStatus.Command
             {

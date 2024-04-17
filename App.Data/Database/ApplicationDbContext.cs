@@ -11,6 +11,8 @@ namespace App.Data.Database
 
         public DbSet<EmployeePosition> EmployeePositions { get; set; }
 
+        public DbSet<Employee> Employees { get; set; }
+
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
     }
 }

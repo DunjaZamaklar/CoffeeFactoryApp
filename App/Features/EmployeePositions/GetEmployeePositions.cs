@@ -24,7 +24,7 @@ public static class GetEmployeePositions
 
         public async Task<List<EmployeePositionResponse>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var supplyOrderStatusResponse = await _applicationDbContext.EmployeePositions
+            var employeePositionsResponse = await _applicationDbContext.EmployeePositions
                 .Select(p => new EmployeePositionResponse
                 {
                     Id = p.Id,
@@ -34,7 +34,7 @@ public static class GetEmployeePositions
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            return supplyOrderStatusResponse;
+            return employeePositionsResponse;
         }
     }
 }

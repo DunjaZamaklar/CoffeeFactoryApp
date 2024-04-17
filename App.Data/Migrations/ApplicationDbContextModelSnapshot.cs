@@ -40,24 +40,25 @@ namespace App.Data.Migrations
 
                     b.ToTable("Products");
                 });
+
             modelBuilder.Entity("App.Data.Entities.SupplyOrderStatus", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid");
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                b.Property<string>("Description")
-                    .IsRequired()
-                    .HasColumnType("text");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasColumnType("text");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                b.HasKey("Id");
+                    b.HasKey("Id");
 
-                b.ToTable("SupplyOrderStatus");
-            });
+                    b.ToTable("SupplyOrderStatus");
+                });
 #pragma warning restore 612, 618
         }
     }

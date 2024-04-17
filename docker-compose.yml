@@ -1,0 +1,31 @@
+version: '3.4'
+
+services:
+  app:
+    image: ${DOCKER_REGISTRY-}app
+    build:
+      context: .
+      dockerfile: App/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+  
+  app.database:
+    image: postgres:15
+    container_name: app.database
+    environment:
+      - POSTGRES_DB=appDb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres 
+    volumes:
+      - ./.containers/app-db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+       - PGADMIN_DEFAULT_EMAIL=test@test.com
+       - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+       - "5050:80"

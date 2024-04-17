@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App", "App\App.csproj", "{785BA2B2-4FDB-40F2-BE03-98DE25398F44}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.Data", "App.Data\App.Data.csproj", "{1774FB87-DA75-49E2-9D5B-CAD8DE75BE9F}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9C159B18-D95F-4976-B6E9-148360C5A2BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{785BA2B2-4FDB-40F2-BE03-98DE25398F44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{785BA2B2-4FDB-40F2-BE03-98DE25398F44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{785BA2B2-4FDB-40F2-BE03-98DE25398F44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{785BA2B2-4FDB-40F2-BE03-98DE25398F44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1774FB87-DA75-49E2-9D5B-CAD8DE75BE9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1774FB87-DA75-49E2-9D5B-CAD8DE75BE9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1774FB87-DA75-49E2-9D5B-CAD8DE75BE9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1774FB87-DA75-49E2-9D5B-CAD8DE75BE9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C159B18-D95F-4976-B6E9-148360C5A2BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C159B18-D95F-4976-B6E9-148360C5A2BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C159B18-D95F-4976-B6E9-148360C5A2BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C159B18-D95F-4976-B6E9-148360C5A2BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B7801A33-F7FF-4081-B02F-54590074DA70}
+	EndGlobalSection
+EndGlobal

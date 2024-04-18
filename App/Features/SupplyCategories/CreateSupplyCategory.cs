@@ -4,10 +4,10 @@ using App.Data.Entities;
 using Carter;
 using FluentValidation;
 using MediatR;
-using static App.Features.Products.CreateProduct;
+using static App.Features.SupplyCategories.CreateSupplyCategory;
 
-namespace App.Features.Products;
-public static class CreateProduct
+namespace App.Features.SupplyCategories;
+public static class CreateSupplyCategory
 {
     public class Command : IRequest<Guid>
     {
@@ -20,7 +20,6 @@ public static class CreateProduct
         public Validator()
         {
             RuleFor(c => c.Name).NotEmpty();
-            RuleFor(c => c.Description).NotEmpty();
         }
     }
     internal sealed class Handler : IRequestHandler<Command, Guid>
@@ -39,30 +38,30 @@ public static class CreateProduct
             {
                 return Guid.Empty;
             }
-            var product = new Product
+            var supplyCategory = new SupplyCategory
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 Description = request.Description
             };
 
-            _applicationDbContext.Add(product);
+            _applicationDbContext.Add(supplyCategory);
             await _applicationDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            return product.Id;
+            return supplyCategory.Id;
         }
     }
 }
-public class ProductEndpoint : CarterModule
+public class SupplyCategoryEndpoint : CarterModule
 {
-    public ProductEndpoint() : base("/api/products")
+    public SupplyCategoryEndpoint() : base("/api/supplyCategory")
     {
 
     }
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("", async (CreateProductRequest request, ISender sender, HttpContext context) =>
+        app.MapPost("", async (CreateSupplyCategoryRequest request, ISender sender, HttpContext context) =>
         {
-            var command = new CreateProduct.Command
+            var command = new CreateSupplyCategory.Command
             {
                 Name = request.Name,
                 Description = request.Description
@@ -72,7 +71,7 @@ public class ProductEndpoint : CarterModule
 
             if (result != Guid.Empty)
             {
-                return Results.Created($"/api/products/{result}", result);
+                return Results.Created($"/api/supplyCategory/{result}", result);
             }
             else
             {

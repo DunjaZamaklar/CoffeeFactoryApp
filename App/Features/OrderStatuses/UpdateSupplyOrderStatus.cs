@@ -59,6 +59,13 @@ public static class UpdateSupplyOrderStatus
                 Description = request.Description
             };
 
+            var updatedSupplyOrderStatusresponse = new SupplyOrderStatusResponse
+            {
+                Id = supplyOrderStatusResponse.Id,
+                Name = request.Name,
+                Description = request.Description
+            };
+
             // Attach the updated entity
             _applicationDbContext.Attach(updatedSupplyOrderStatus);
 
@@ -68,7 +75,7 @@ public static class UpdateSupplyOrderStatus
             // Save changes to the database
             await _applicationDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return supplyOrderStatusResponse;
+            return updatedSupplyOrderStatusresponse;
 
         }
     }

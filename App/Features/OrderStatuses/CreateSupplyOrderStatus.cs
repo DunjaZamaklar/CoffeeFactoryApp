@@ -59,7 +59,7 @@ public class SupplyOrderStatusEndpoint : CarterModule
     }
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("", async (CreateProductRequest request, ISender sender, HttpContext context) =>
+        app.MapPost("", async (CreateSupplyOrderStatusRequest request, ISender sender, HttpContext context) =>
         {
             var command = new CreateSupplyOrderStatus.Command
             {

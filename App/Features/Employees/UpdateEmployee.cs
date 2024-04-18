@@ -77,7 +77,22 @@ public static class UpdateEmployee
                 return null;
             }
 
-            var updatedEmployeeResponse = new Employee
+            var updatedEmployee = new Employee
+            {
+                Id = employeeResponse.Id,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Address = request.Address,
+                City = request.City,
+                Country = request.Country,
+                PhoneNumber = request.PhoneNumber,
+                Email = request.Email,
+                Username = request.Username,
+                Password = request.Password,
+                Status = request.Status
+            };
+
+            var updatedEmployeeResponse = new EmployeeResponse 
             {
                 Id = employeeResponse.Id,
                 FirstName = request.FirstName,
@@ -93,15 +108,15 @@ public static class UpdateEmployee
             };
 
             // Attach the updated entity
-            _applicationDbContext.Attach(updatedEmployeeResponse);
+            _applicationDbContext.Attach(updatedEmployee);
 
             // Set the entity state to modified
-            _applicationDbContext.Entry(updatedEmployeeResponse).State = EntityState.Modified;
+            _applicationDbContext.Entry(updatedEmployee).State = EntityState.Modified;
 
             // Save changes to the database
             await _applicationDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return employeeResponse;
+            return updatedEmployeeResponse;
 
         }
     }

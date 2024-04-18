@@ -59,6 +59,13 @@ public static class UpdateEmployeePosition
                 Description = request.Description
             };
 
+            var updatedEmployeePositionResponse = new EmployeePositionResponse
+            {
+                Id = employeePositionResponse.Id,
+                Name = request.Name,
+                Description = request.Description
+            };
+
             // Attach the updated entity
             _applicationDbContext.Attach(updatedEmployeePosition);
 
@@ -68,7 +75,7 @@ public static class UpdateEmployeePosition
             // Save changes to the database
             await _applicationDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            return employeePositionResponse;
+            return updatedEmployeePositionResponse;
 
         }
     }

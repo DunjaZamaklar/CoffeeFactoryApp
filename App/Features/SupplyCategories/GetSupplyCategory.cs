@@ -3,16 +3,18 @@ using App.Data.Database;
 using Carter;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using static App.Features.SupplyCategories.GetSupplyCategory;
 
-namespace App.Features.Products;
-public static class GetProduct
+namespace App.Features.SupplyCategories;
+
+public static class GetSupplyCategory
 {
-    public class Query : IRequest<ProductResponse>
+    public class Query : IRequest<SupplyCategoryResponse>
     {
         public Guid Id { get; set; }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, ProductResponse>
+    internal sealed class Handler : IRequestHandler<Query, SupplyCategoryResponse>
     {
         private readonly ApplicationDbContext _applicationDbContext;
 
@@ -21,11 +23,11 @@ public static class GetProduct
             _applicationDbContext = applicationDbContext;
         }
 
-        public async Task<ProductResponse> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<SupplyCategoryResponse> Handle(Query request, CancellationToken cancellationToken)
         {
-            var productResponse = await _applicationDbContext.Products
+            var supplyCategoryResponse = await _applicationDbContext.SupplyCategories
                 .Where(p => p.Id == request.Id)
-                .Select(p => new ProductResponse
+                .Select(p => new SupplyCategoryResponse
                 {
                     Id = p.Id,
                     Name = p.Name,
@@ -34,22 +36,22 @@ public static class GetProduct
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            if (productResponse is null)
+            if (supplyCategoryResponse is null)
             {
                 return null;
             }
-            return productResponse;
+            return supplyCategoryResponse;
         }
     }
 }
 
-public class GetProductEndpoint : ICarterModule
+public class GetSupplyCategoryEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("products/{id}", async (Guid id, ISender sender) =>
+        app.MapGet("supplyCategory/{id}", async (Guid id, ISender sender) =>
         {
-            var query = new GetProduct.Query { Id = id };
+            var query = new GetSupplyCategory.Query { Id = id };
             var result = await sender.Send(query).ConfigureAwait(false);
             if (result is null)
             {

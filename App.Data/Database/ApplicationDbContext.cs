@@ -5,13 +5,14 @@ namespace App.Data.Database
 {
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<Product> Products { get; set; }
 
         public DbSet<SupplyOrderStatus> SupplyOrderStatus { get; set; }
 
         public DbSet<EmployeePosition> EmployeePositions { get; set; }
 
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<SupplyCategory> SupplyCategories { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
 
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
     }

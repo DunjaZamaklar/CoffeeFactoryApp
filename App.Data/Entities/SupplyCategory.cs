@@ -2,7 +2,7 @@
 
 namespace App.Data.Entities
 {
-    public class Product
+    public class SupplyCategory
     {
         [Key]
         public Guid Id { get; set; }

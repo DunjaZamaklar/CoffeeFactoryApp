@@ -1,5 +1,5 @@
 ﻿namespace App.Contracts;
-public class ProductResponse
+public class SupplyCategoryResponse
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

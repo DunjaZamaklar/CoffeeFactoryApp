@@ -39,11 +39,15 @@ public static class GetSupplyOrderStatuses
     }
 }
 
-public class GetAllSupplyOrderStatusEndpoint : ICarterModule
+public class GetAllSupplyOrderStatusEndpoint : CarterModule
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public GetAllSupplyOrderStatusEndpoint() : base("/api/supplyOrderStatus")
     {
-        app.MapGet("supplyOrderStatus", async (ISender sender) =>
+
+    }
+    public override void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("", async (ISender sender) =>
         {
             var query = new GetSupplyOrderStatuses.Query { };
             var result = await sender.Send(query).ConfigureAwait(false);

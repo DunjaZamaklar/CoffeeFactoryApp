@@ -82,9 +82,13 @@ public static class UpdateSupplyCategory
 }
 public class UpdateSupplyCategoryEndpoint : CarterModule
 {
+    public UpdateSupplyCategoryEndpoint() : base("/api/supplyCategory")
+    {
+
+    }
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPut("supplyCategory/{id}", async (Guid id, CreateSupplyCategoryRequest request, ISender sender, HttpContext context) =>
+        app.MapPut("/{id}", async (Guid id, CreateSupplyCategoryRequest request, ISender sender, HttpContext context) =>
         {
             var command = new UpdateSupplyCategory.Command
             {

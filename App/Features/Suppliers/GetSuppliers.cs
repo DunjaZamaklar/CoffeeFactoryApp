@@ -43,11 +43,15 @@ public static class GetSuppliers
     }
 }
 
-public class GetAllSuppliersEndpoint : ICarterModule
+public class GetAllSuppliersEndpoint : CarterModule
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public GetAllSuppliersEndpoint() : base("/api/supplier")
     {
-        app.MapGet("supplier", async (ISender sender) =>
+
+    }
+    public override void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("", async (ISender sender) =>
         {
             var query = new GetSuppliers.Query { };
             var result = await sender.Send(query).ConfigureAwait(false);

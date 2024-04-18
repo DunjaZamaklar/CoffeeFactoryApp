@@ -105,9 +105,13 @@ public static class UpdateSupplier
 }
 public class UpdateSupplierEndpoint : CarterModule
 {
+    public UpdateSupplierEndpoint() : base("/api/supplier")
+    {
+
+    }
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPut("supplier/{id}", async (Guid id, CreateSupplierRequest request, ISender sender, HttpContext context) =>
+        app.MapPut("/{id}", async (Guid id, CreateSupplierRequest request, ISender sender, HttpContext context) =>
         {
             var command = new UpdateSupplier.Command
             {

@@ -39,11 +39,15 @@ public static class DeleteSupplyCategory
     }
 }
 
-public class DeleteSupplyCatgoryEndpoint : ICarterModule
+public class DeleteSupplyCatgoryEndpoint : CarterModule
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public DeleteSupplyCatgoryEndpoint() : base("/api/supplyCategory")
     {
-        app.MapDelete("supplyCategory/{id}", async (Guid id, ISender sender) =>
+
+    }
+    public override void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapDelete("/{id}", async (Guid id, ISender sender) =>
         {
             var query = new DeleteSupplyCategory.Query { Id = id };
             var result = await sender.Send(query).ConfigureAwait(false);

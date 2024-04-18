@@ -82,9 +82,13 @@ public static class UpdateEmployeePosition
 }
 public class UpdateEmployeePositionEndpoint : CarterModule
 {
+    public UpdateEmployeePositionEndpoint() : base("/api/employeePosition")
+    {
+
+    }
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPut("employeePosition/{id}", async (Guid id, CreateEmployeePositionRequest request, ISender sender, HttpContext context) =>
+        app.MapPut("/{id}", async (Guid id, CreateEmployeePositionRequest request, ISender sender, HttpContext context) =>
         {
             var command = new UpdateEmployeePosition.Command
             {

@@ -127,6 +127,37 @@ namespace App.Data.Migrations
                     b.ToTable("Suppliers");
                 });
 
+            modelBuilder.Entity("App.Data.Entities.Supply", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Quantity")
+                        .HasColumnType("double precision");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SupplyCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("SupplyCategoryId");
+
+                    b.ToTable("Supplies");
+                });
+
             modelBuilder.Entity("App.Data.Entities.SupplyCategory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -163,6 +194,25 @@ namespace App.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SupplyOrderStatus");
+                });
+
+            modelBuilder.Entity("App.Data.Entities.Supply", b =>
+                {
+                    b.HasOne("App.Data.Entities.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Data.Entities.SupplyCategory", "SupplyCategory")
+                        .WithMany()
+                        .HasForeignKey("SupplyCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
+
+                    b.Navigation("SupplyCategory");
                 });
 #pragma warning restore 612, 618
         }

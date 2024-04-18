@@ -39,11 +39,15 @@ public static class DeleteSupplier
     }
 }
 
-public class DeleteSupplierEndpoint : ICarterModule
+public class DeleteSupplierEndpoint : CarterModule
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public DeleteSupplierEndpoint() : base("/api/supplier")
     {
-        app.MapDelete("supplier/{id}", async (Guid id, ISender sender) =>
+
+    }
+    public override void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapDelete("/{id}", async (Guid id, ISender sender) =>
         {
             var query = new DeleteSupplier.Query { Id = id };
             var result = await sender.Send(query).ConfigureAwait(false);

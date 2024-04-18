@@ -39,11 +39,15 @@ public static class GetEmployeePositions
     }
 }
 
-public class GetAllEmployeePositionsEndpoint : ICarterModule
+public class GetAllEmployeePositionsEndpoint : CarterModule
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public GetAllEmployeePositionsEndpoint() : base("/api/employeePosition")
     {
-        app.MapGet("employeePosition", async (ISender sender) =>
+
+    }
+    public override void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("", async (ISender sender) =>
         {
             var query = new GetEmployeePositions.Query { };
             var result = await sender.Send(query).ConfigureAwait(false);

@@ -39,11 +39,15 @@ public static class DeleteEmployee
     }
 }
 
-public class DeleteEmployeeEndpoint : ICarterModule
+public class DeleteEmployeeEndpoint : CarterModule
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public DeleteEmployeeEndpoint() : base("/api/employee")
     {
-        app.MapDelete("employee/{id}", async (Guid id, ISender sender) =>
+
+    }
+    public override void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapDelete("/{id}", async (Guid id, ISender sender) =>
         {
             var query = new DeleteEmployee.Query { Id = id };
             var result = await sender.Send(query).ConfigureAwait(false);

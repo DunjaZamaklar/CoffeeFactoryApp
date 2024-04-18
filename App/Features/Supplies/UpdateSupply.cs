@@ -18,8 +18,8 @@ public static class UpdateSupply
         public string Name { get; set; } = string.Empty;
         public double Quantity { get; set; } = 0;
         public double Price { get; set; } = 0;
-        public Supplier Supplier { get; set; }
-        public SupplyCategory SupplyCategory { get; set; }
+        public Guid SupplierId { get; set; }
+        public Guid SupplyCategoryId { get; set; }
     }
 
     public class Validator : AbstractValidator<Command>
@@ -27,8 +27,8 @@ public static class UpdateSupply
         public Validator()
         {
             RuleFor(c => c.Name).NotEmpty();
-            RuleFor(c => c.Supplier).NotEmpty();
-            RuleFor(c => c.SupplyCategory).NotEmpty();
+            RuleFor(c => c.SupplierId).NotEmpty();
+            RuleFor(c => c.SupplyCategoryId).NotEmpty();
         }
     }
     internal sealed class Handler : IRequestHandler<Command, SupplyResponse>
@@ -61,15 +61,31 @@ public static class UpdateSupply
             {
                 return null;
             }
+            var supplier = await _applicationDbContext.Suppliers
+                    .Where(p => p.Id == request.SupplierId)
+                .FirstOrDefaultAsync(cancellationToken);
 
+            if (supplier is null)
+            {
+                return null;
+            }
+
+            var supplyCategory = await _applicationDbContext.SupplyCategories
+                    .Where(p => p.Id == request.SupplyCategoryId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (supplyCategory is null)
+            {
+                return null;
+            }
             var updatedSupply = new Supply
             {
                 Id = supplyResponse.Id,
                 Name = request.Name,
                 Quantity = request.Quantity,
                 Price = request.Price,
-                Supplier = request.Supplier,
-                SupplyCategory = request.SupplyCategory
+                Supplier = supplier,
+                SupplyCategory = supplyCategory
             };
 
             var updatedSupplyResponse = new SupplyResponse 
@@ -78,8 +94,8 @@ public static class UpdateSupply
                 Name = request.Name,
                 Quantity = request.Quantity,
                 Price = request.Price,
-                Supplier = request.Supplier,
-                SupplyCategory = request.SupplyCategory
+                Supplier = supplier,
+                SupplyCategory = supplyCategory
             };
 
             // Attach the updated entity
@@ -112,8 +128,8 @@ public class UpdateSupplyEndpoint : CarterModule
                 Name = request.Name,
                 Quantity = request.Quantity,
                 Price = request.Price,
-                Supplier = request.Supplier,
-                SupplyCategory = request.SupplyCategory
+                SupplierId = request.SupplierId,
+                SupplyCategoryId = request.SupplyCategoryId
             };
 
             var result = await sender.Send(command).ConfigureAwait(false);

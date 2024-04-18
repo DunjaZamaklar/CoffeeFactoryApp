@@ -8,6 +8,6 @@ public class CreateSupplyRequest
     public string Name { get; set; } = string.Empty;
     public double Quantity { get; set; } = 0;
     public double Price { get; set; } = 0;
-    public Supplier Supplier { get; set; }
-    public SupplyCategory SupplyCategory { get; set; }
+    public Guid SupplierId { get; set; }
+    public Guid SupplyCategoryId { get; set; }
 }

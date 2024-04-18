@@ -7,6 +7,7 @@ using MediatR;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Supplies.CreateSupply;
+using Microsoft.EntityFrameworkCore;
 
 namespace App.Features.Supplies;
 public static class CreateSupply
@@ -16,8 +17,8 @@ public static class CreateSupply
         public string Name { get; set; } = string.Empty;
         public double Quantity { get; set; } = 0;
         public double Price { get; set; } = 0;
-        public Supplier Supplier { get; set; }
-        public SupplyCategory SupplyCategory { get; set; }
+        public Guid SupplierId { get; set; }
+        public Guid SupplyCategoryId { get; set; }
     }
 
     public class Validator : AbstractValidator<Command>
@@ -25,8 +26,8 @@ public static class CreateSupply
         public Validator()
         {
             RuleFor(c => c.Name).NotEmpty();
-            RuleFor(c => c.Supplier).NotEmpty();
-            RuleFor(c => c.SupplyCategory).NotEmpty();
+            RuleFor(c => c.SupplierId).NotEmpty();
+            RuleFor(c => c.SupplyCategoryId).NotEmpty();
         }
     }
     internal sealed class Handler : IRequestHandler<Command, Guid>
@@ -45,14 +46,32 @@ public static class CreateSupply
             {
                 return Guid.Empty;
             }
+            var supplier = await _applicationDbContext.Suppliers
+                    .Where(p => p.Id == request.SupplierId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (supplier is null)
+            {
+                return Guid.Empty;
+            }
+
+            var supplyCategory = await _applicationDbContext.SupplyCategories
+                    .Where(p => p.Id == request.SupplyCategoryId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (supplyCategory is null)
+            {
+                return Guid.Empty;
+            }
+
             var supply = new Supply
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 Quantity = request.Quantity,
                 Price = request.Price,
-                SupplyCategory = request.SupplyCategory,
-                Supplier = request.Supplier
+                SupplyCategory = supplyCategory,
+                Supplier = supplier
             };
 
             _applicationDbContext.Add(supply);
@@ -76,8 +95,8 @@ public class SupplyEndpoint : CarterModule
                 Name = request.Name,
                 Quantity = request.Quantity,
                 Price = request.Price,
-                SupplyCategory = request.SupplyCategory,
-                Supplier = request.Supplier
+                SupplyCategoryId = request.SupplyCategoryId,
+                SupplierId = request.SupplierId
             };
 
             var result = await sender.Send(command).ConfigureAwait(false);

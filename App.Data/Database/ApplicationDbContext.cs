@@ -16,6 +16,15 @@ namespace App.Data.Database
         public DbSet<Supply> Supplies { get; set; }
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
 
+        public DbSet<SupplyOrder> SupplyOrders { get; set; }
+
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Define unique constraint for Username property
+            modelBuilder.Entity<Employee>()
+                .HasIndex(e => e.Username)
+                .IsUnique();
+        }
     }
 }

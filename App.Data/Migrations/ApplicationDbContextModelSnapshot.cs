@@ -70,6 +70,9 @@ namespace App.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Username")
+                        .IsUnique();
+
                     b.ToTable("Employees");
                 });
 
@@ -211,6 +214,36 @@ namespace App.Data.Migrations
                     b.ToTable("SupplyCategories");
                 });
 
+            modelBuilder.Entity("App.Data.Entities.SupplyOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("SupplyOrders");
+                });
+
             modelBuilder.Entity("App.Data.Entities.SupplyOrderStatus", b =>
                 {
                     b.Property<Guid>("Id")
@@ -266,6 +299,25 @@ namespace App.Data.Migrations
                     b.Navigation("Supplier");
 
                     b.Navigation("SupplyCategory");
+                });
+
+            modelBuilder.Entity("App.Data.Entities.SupplyOrder", b =>
+                {
+                    b.HasOne("App.Data.Entities.EmployeeContract", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Data.Entities.SupplyOrderStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Status");
                 });
 #pragma warning restore 612, 618
         }

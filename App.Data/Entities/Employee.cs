@@ -8,11 +8,8 @@ namespace App.Data.Entities
     {
         [Key]
         public Guid Id { get; set; }
-        [NotNull]
         public string FirstName { get; set; } = string.Empty;
-        [NotNull]
         public string LastName { get; set; } = string.Empty;
-        [NotNull]
         public string Address { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;

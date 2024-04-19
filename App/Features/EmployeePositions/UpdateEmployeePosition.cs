@@ -35,6 +35,11 @@ public static class UpdateEmployeePosition
         }
         public async Task<EmployeePositionResponse> Handle(Command request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!validationResult.IsValid)
+            {
+                return null;
+            }
 
             var employeePositionResponse = await _applicationDbContext.EmployeePositions
                 .Where(p => p.Id == request.Id)

@@ -52,6 +52,11 @@ public static class UpdateEmployee
         }
         public async Task<EmployeeResponse> Handle(Command request, CancellationToken cancellationToken)
         {
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!validationResult.IsValid)
+            {
+                return null;
+            }
 
             var employeeResponse = await _applicationDbContext.Employees
                 .Where(p => p.Id == request.Id)
@@ -66,7 +71,6 @@ public static class UpdateEmployee
                     PhoneNumber = p.PhoneNumber,
                     Email = p.Email,
                     Username = p.Username,
-                    Password = p.Password,
                     Status = p.Status
                 })
                 .FirstOrDefaultAsync(cancellationToken)
@@ -103,7 +107,6 @@ public static class UpdateEmployee
                 PhoneNumber = request.PhoneNumber,
                 Email = request.Email,
                 Username = request.Username,
-                Password = request.Password,
                 Status = request.Status
             };
 

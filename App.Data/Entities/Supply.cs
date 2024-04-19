@@ -11,9 +11,7 @@ namespace App.Data.Entities
         public string Name { get; set; } = string.Empty;
         public double Quantity { get; set; } = 0;
         public double Price { get; set; } = 0;
-        [NotNull]
         public Supplier Supplier { get; set; }
-        [NotNull]
         public SupplyCategory SupplyCategory { get; set; }
 
     }

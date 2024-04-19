@@ -73,6 +73,40 @@ namespace App.Data.Migrations
                     b.ToTable("Employees");
                 });
 
+            modelBuilder.Entity("App.Data.Entities.EmployeeContract", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("ActiveFlag")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeePositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("EmployeePositionId");
+
+                    b.ToTable("EmployeeContracts");
+                });
+
             modelBuilder.Entity("App.Data.Entities.EmployeePosition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -194,6 +228,25 @@ namespace App.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SupplyOrderStatus");
+                });
+
+            modelBuilder.Entity("App.Data.Entities.EmployeeContract", b =>
+                {
+                    b.HasOne("App.Data.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Data.Entities.EmployeePosition", "EmployeePosition")
+                        .WithMany()
+                        .HasForeignKey("EmployeePositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("EmployeePosition");
                 });
 
             modelBuilder.Entity("App.Data.Entities.Supply", b =>

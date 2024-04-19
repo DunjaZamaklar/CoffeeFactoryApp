@@ -35,7 +35,11 @@ public static class UpdateSupplyOrderStatus
         }
         public async Task<SupplyOrderStatusResponse> Handle(Command request, CancellationToken cancellationToken)
         {
-
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!validationResult.IsValid)
+            {
+                return null;
+            }
             var supplyOrderStatusResponse = await _applicationDbContext.SupplyOrderStatus
                 .Where(p => p.Id == request.Id)
                 .Select(p => new SupplyOrderStatusResponse

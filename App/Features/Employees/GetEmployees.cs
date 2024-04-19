@@ -36,7 +36,6 @@ public static class GetEmployees
                     PhoneNumber = p.PhoneNumber,
                     Email = p.Email,
                     Username = p.Username,
-                    Password = p.Password,
                     Status = p.Status
                 })
                 .ToListAsync(cancellationToken)

@@ -14,6 +14,7 @@ namespace App.Data.Database
         public DbSet<SupplyCategory> SupplyCategories { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Supply> Supplies { get; set; }
+        public DbSet<EmployeeContract> EmployeeContracts { get; set; }
 
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
     }

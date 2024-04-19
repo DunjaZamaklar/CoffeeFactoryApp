@@ -6,7 +6,6 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
 using static App.Features.Suppliers.UpdateSupplier;
 
 namespace App.Features.Suppliers;
@@ -19,10 +18,7 @@ public static class UpdateSupplier
         public string Address { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
-
-        [Phone]
         public string PhoneNumber { get; set; } = string.Empty;
-        [EmailAddress]
         public string Email { get; set; } = string.Empty;
     }
 
@@ -46,8 +42,12 @@ public static class UpdateSupplier
         }
         public async Task<SupplierResponse> Handle(Command request, CancellationToken cancellationToken)
         {
-
-            var supplierResponse = await _applicationDbContext.Suppliers
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!validationResult.IsValid)
+            {
+                return null;
+            }
+            var suppliersResponse = await _applicationDbContext.Suppliers
                 .Where(p => p.Id == request.Id)
                 .Select(p => new SupplierResponse
                 {
@@ -62,14 +62,14 @@ public static class UpdateSupplier
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            if (supplierResponse is null)
+            if (suppliersResponse is null)
             {
                 return null;
             }
 
             var updatedSupplier = new Supplier
             {
-                Id = supplierResponse.Id,
+                Id = suppliersResponse.Id,
                 Name = request.Name,
                 Address = request.Address,
                 City = request.City,
@@ -78,9 +78,9 @@ public static class UpdateSupplier
                 Email = request.Email
             };
 
-            var updatedSupplierResponse = new SupplierResponse 
+            var updatedSupplierResponse = new SupplierResponse
             {
-                Id = supplierResponse.Id,
+                Id = suppliersResponse.Id,
                 Name = request.Name,
                 Address = request.Address,
                 City = request.City,

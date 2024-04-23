@@ -57,7 +57,7 @@ public class DeleteEmployeeContractEndpoint : CarterModule
             }
             else
             {
-                return Results.NotFound();
+                return Results.BadRequest(result.Error);
             }
         });
     }

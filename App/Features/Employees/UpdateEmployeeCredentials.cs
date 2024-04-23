@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Employees.UpdateEmployeeCredentials;
+using CSharpFunctionalExtensions;
 
 namespace App.Features.Employees;
 public static class UpdateEmployeeCredentials
 {
-    public class Command : IRequest<Guid>
+    public class Command : IRequest<Result<Guid, IEnumerable<string>>>
     {
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
@@ -26,7 +27,7 @@ public static class UpdateEmployeeCredentials
             RuleFor(c => c.Password).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, Guid>
+    internal sealed class Handler : IRequestHandler<Command, Result<Guid, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -35,12 +36,12 @@ public static class UpdateEmployeeCredentials
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Guid, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return Guid.Empty;
+                return Result.Failure<Guid, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
 
             var employeeResponse = await _applicationDbContext.Employees
@@ -63,7 +64,7 @@ public static class UpdateEmployeeCredentials
 
             if (employeeResponse is null)
             {
-                return Guid.Empty;
+                return Result.Failure<Guid, IEnumerable<string>>(new List<string> { "Invalid employeeId value" });
             }
             if (request.UpdatedUsername == null || request.UpdatedUsername == "") {
                 request.UpdatedUsername = employeeResponse.Username;
@@ -117,13 +118,13 @@ public class UpdateEmployeePasswordEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != Guid.Empty)
+            if (result.IsSuccess)
             {
                 return Results.Created();
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

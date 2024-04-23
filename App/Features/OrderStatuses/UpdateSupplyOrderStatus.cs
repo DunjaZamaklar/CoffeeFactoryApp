@@ -2,6 +2,7 @@
 using App.Data.Database;
 using App.Data.Entities;
 using Carter;
+using CSharpFunctionalExtensions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using static App.Features.OrderStatuses.UpdateSupplyOrderStatus;
 namespace App.Features.OrderStatuses;
 public static class UpdateSupplyOrderStatus
 {
-    public class Command : IRequest<SupplyOrderStatusResponse>
+    public class Command : IRequest<Result<SupplyOrderStatusResponse, IEnumerable<string>>>
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -24,7 +25,7 @@ public static class UpdateSupplyOrderStatus
             RuleFor(c => c.Name).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, SupplyOrderStatusResponse>
+    internal sealed class Handler : IRequestHandler<Command, Result<SupplyOrderStatusResponse, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -33,12 +34,12 @@ public static class UpdateSupplyOrderStatus
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<SupplyOrderStatusResponse> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<SupplyOrderStatusResponse, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return null;
+                return Result.Failure<SupplyOrderStatusResponse, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
             var supplyOrderStatusResponse = await _applicationDbContext.SupplyOrderStatus
                 .Where(p => p.Id == request.Id)
@@ -53,7 +54,7 @@ public static class UpdateSupplyOrderStatus
 
             if (supplyOrderStatusResponse is null)
             {
-                return null;
+                return Result.Failure<SupplyOrderStatusResponse, IEnumerable<string>>(new List<string> { "Invalid statusId" });
             }
 
             var updatedSupplyOrderStatus = new SupplyOrderStatus
@@ -103,13 +104,13 @@ public class UpdateSupplyOrderStatusEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != null)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/supplyOrderStatus/{result}", result);
+                return Results.Created($"/api/supplyOrderStatus/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

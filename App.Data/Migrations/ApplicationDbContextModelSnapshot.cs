@@ -214,6 +214,33 @@ namespace App.Data.Migrations
                     b.ToTable("SupplyCategories");
                 });
 
+            modelBuilder.Entity("App.Data.Entities.SupplyItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Quantity")
+                        .HasColumnType("double precision");
+
+                    b.Property<Guid>("SupplyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SupplyOrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplyId");
+
+                    b.HasIndex("SupplyOrderId");
+
+                    b.ToTable("SupplyItems");
+                });
+
             modelBuilder.Entity("App.Data.Entities.SupplyOrder", b =>
                 {
                     b.Property<Guid>("Id")
@@ -299,6 +326,25 @@ namespace App.Data.Migrations
                     b.Navigation("Supplier");
 
                     b.Navigation("SupplyCategory");
+                });
+
+            modelBuilder.Entity("App.Data.Entities.SupplyItem", b =>
+                {
+                    b.HasOne("App.Data.Entities.Supply", "Supply")
+                        .WithMany()
+                        .HasForeignKey("SupplyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Data.Entities.SupplyOrder", "SupplyOrder")
+                        .WithMany()
+                        .HasForeignKey("SupplyOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Supply");
+
+                    b.Navigation("SupplyOrder");
                 });
 
             modelBuilder.Entity("App.Data.Entities.SupplyOrder", b =>

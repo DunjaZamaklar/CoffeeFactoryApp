@@ -7,11 +7,12 @@ using MediatR;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Employees.CreateEmployee;
+using CSharpFunctionalExtensions;
 
 namespace App.Features.Employees;
 public static class CreateEmployee
 {
-    public class Command : IRequest<Guid>
+    public class Command : IRequest<Result<Guid, IEnumerable<string>>>
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
@@ -39,7 +40,7 @@ public static class CreateEmployee
             RuleFor(c => c.LastName).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, Guid>
+    internal sealed class Handler : IRequestHandler<Command, Result<Guid, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -48,12 +49,12 @@ public static class CreateEmployee
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Guid, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return Guid.Empty;
+                return Result.Failure<Guid, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
             var employee = new Employee
             {
@@ -102,13 +103,13 @@ public class EmployeeEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != Guid.Empty)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/employee/{result}", result);
+                return Results.Created($"/api/employee/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Employees.UpdateEmployee;
+using CSharpFunctionalExtensions;
 
 namespace App.Features.Employees;
 public static class UpdateEmployee
 {
-    public class Command : IRequest<EmployeeResponse>
+    public class Command : IRequest<Result<EmployeeResponse, IEnumerable<string>>>
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
@@ -41,7 +42,7 @@ public static class UpdateEmployee
             RuleFor(c => c.LastName).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, EmployeeResponse>
+    internal sealed class Handler : IRequestHandler<Command, Result<EmployeeResponse, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -50,12 +51,12 @@ public static class UpdateEmployee
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<EmployeeResponse> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<EmployeeResponse, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return null;
+                return Result.Failure<EmployeeResponse, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
 
             var employeeResponse = await _applicationDbContext.Employees
@@ -78,7 +79,7 @@ public static class UpdateEmployee
 
             if (employeeResponse is null)
             {
-                return null;
+                return Result.Failure<EmployeeResponse, IEnumerable<string>>(new List<string> { "Invalid employeeId"});
             }
 
             var updatedEmployee = new Employee
@@ -151,13 +152,13 @@ public class UpdateEmployeeEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != null)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/employee/{result}", result);
+                return Results.Created($"/api/employee/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

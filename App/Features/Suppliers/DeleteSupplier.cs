@@ -1,6 +1,7 @@
 ﻿using App.Contracts;
 using App.Data.Database;
 using Carter;
+using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using static App.Features.Suppliers.DeleteSupplier;
@@ -10,12 +11,12 @@ namespace App.Features.Suppliers;
 public static class DeleteSupplier
 {
 
-    public class Query : IRequest<Boolean>
+    public class Query : IRequest<Result<Boolean, IEnumerable<string>>>
     {
         public Guid Id { get; set; }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Boolean>
+    internal sealed class Handler : IRequestHandler<Query, Result<Boolean, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
 
@@ -24,17 +25,23 @@ public static class DeleteSupplier
             _applicationDbContext = applicationDbContext;
         }
 
-        public async Task<Boolean> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<Boolean, IEnumerable<string>>> Handle(Query request, CancellationToken cancellationToken)
         {
             var entityToDelete = await _applicationDbContext.Suppliers.FindAsync(request.Id);
             if (entityToDelete != null)
             {
-                _applicationDbContext.Suppliers.Remove(entityToDelete);
-                // Save changes to the database
-                await _applicationDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    _applicationDbContext.Suppliers.Remove(entityToDelete);
+                    await _applicationDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    return Result.Failure<Boolean, IEnumerable<string>>(new List<string> { ex.Message });
+                }
                 return true;
             }
-            return false;
+            return Result.Failure<Boolean, IEnumerable<string>>(new List<string> { "Invalid supplyId value" });
         }
     }
 }
@@ -51,13 +58,13 @@ public class DeleteSupplierEndpoint : CarterModule
         {
             var query = new DeleteSupplier.Query { Id = id };
             var result = await sender.Send(query).ConfigureAwait(false);
-            if (result)
+            if (result.IsSuccess)
             {
                 return Results.Ok();
             }
             else
             {
-                return Results.NotFound();
+                return Results.BadRequest(result.Error);
             }
         });
     }

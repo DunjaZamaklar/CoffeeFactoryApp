@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Supplies.UpdateSupply;
+using CSharpFunctionalExtensions;
 
 namespace App.Features.Supplies;
 public static class UpdateSupply
 {
-    public class Command : IRequest<SupplyResponse>
+    public class Command : IRequest<Result<SupplyResponse, IEnumerable<string>>>
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -31,7 +32,7 @@ public static class UpdateSupply
             RuleFor(c => c.SupplyCategoryId).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, SupplyResponse>
+    internal sealed class Handler : IRequestHandler<Command, Result<SupplyResponse, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -40,12 +41,12 @@ public static class UpdateSupply
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<SupplyResponse> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<SupplyResponse, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return null;
+                return Result.Failure<SupplyResponse, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
             var supplyResponse = await _applicationDbContext.Supplies
                 .Where(p => p.Id == request.Id)
@@ -63,7 +64,7 @@ public static class UpdateSupply
 
             if (supplyResponse is null)
             {
-                return null;
+                return Result.Failure<SupplyResponse, IEnumerable<string>>(new List<string> { "Invalid supplyId value"});
             }
             var supplier = await _applicationDbContext.Suppliers
                     .Where(p => p.Id == request.SupplierId)
@@ -71,7 +72,7 @@ public static class UpdateSupply
 
             if (supplier is null)
             {
-                return null;
+                return Result.Failure<SupplyResponse, IEnumerable<string>>(new List<string> { "Invalid supplierId value" });
             }
 
             var supplyCategory = await _applicationDbContext.SupplyCategories
@@ -80,7 +81,7 @@ public static class UpdateSupply
 
             if (supplyCategory is null)
             {
-                return null;
+                return Result.Failure<SupplyResponse, IEnumerable<string>>(new List<string> { "Invalid supplyCategoryId value" });
             }
             var updatedSupply = new Supply
             {
@@ -138,13 +139,13 @@ public class UpdateSupplyEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != null)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/supply/{result}", result);
+                return Results.Created($"/api/supply/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

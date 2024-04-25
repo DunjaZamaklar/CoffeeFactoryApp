@@ -8,11 +8,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Supplies.CreateSupply;
 using Microsoft.EntityFrameworkCore;
+using CSharpFunctionalExtensions;
 
 namespace App.Features.Supplies;
 public static class CreateSupply
 {
-    public class Command : IRequest<Guid>
+    public class Command : IRequest<Result<Guid, IEnumerable<string>>>
     {
         public string Name { get; set; } = string.Empty;
         public double Quantity { get; set; } = 0;
@@ -30,7 +31,7 @@ public static class CreateSupply
             RuleFor(c => c.SupplyCategoryId).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, Guid>
+    internal sealed class Handler : IRequestHandler<Command, Result<Guid, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -39,12 +40,12 @@ public static class CreateSupply
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Guid, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return Guid.Empty;
+                return Result.Failure<Guid, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
             var supplier = await _applicationDbContext.Suppliers
                     .Where(p => p.Id == request.SupplierId)
@@ -52,7 +53,7 @@ public static class CreateSupply
 
             if (supplier is null)
             {
-                return Guid.Empty;
+                return Result.Failure<Guid, IEnumerable<string>>(new List<string> { "Invalid supplierId value" });
             }
 
             var supplyCategory = await _applicationDbContext.SupplyCategories
@@ -61,7 +62,7 @@ public static class CreateSupply
 
             if (supplyCategory is null)
             {
-                return Guid.Empty;
+                return Result.Failure<Guid, IEnumerable<string>>(new List<string> { "Invalid supplyCategoryId value" });
             }
 
             var supply = new Supply
@@ -101,13 +102,13 @@ public class SupplyEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != Guid.Empty)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/supply/{result}", result);
+                return Results.Created($"/api/supply/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

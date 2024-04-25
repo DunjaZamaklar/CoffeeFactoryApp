@@ -2,6 +2,7 @@
 using App.Data.Database;
 using App.Data.Entities;
 using Carter;
+using CSharpFunctionalExtensions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ using static App.Features.Suppliers.UpdateSupplier;
 namespace App.Features.Suppliers;
 public static class UpdateSupplier
 {
-    public class Command : IRequest<SupplierResponse>
+    public class Command : IRequest<Result<SupplierResponse, IEnumerable<string>>>
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -31,7 +32,7 @@ public static class UpdateSupplier
             RuleFor(c => c.Address).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, SupplierResponse>
+    internal sealed class Handler : IRequestHandler<Command, Result<SupplierResponse, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -40,12 +41,12 @@ public static class UpdateSupplier
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<SupplierResponse> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<SupplierResponse, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return null;
+                return Result.Failure<SupplierResponse, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
             var suppliersResponse = await _applicationDbContext.Suppliers
                 .Where(p => p.Id == request.Id)
@@ -64,7 +65,7 @@ public static class UpdateSupplier
 
             if (suppliersResponse is null)
             {
-                return null;
+                return Result.Failure<SupplierResponse, IEnumerable<string>>(new List<string> { "Invalid supplierId value"});
             }
 
             var updatedSupplier = new Supplier
@@ -126,13 +127,13 @@ public class UpdateSupplierEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != null)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/supplier/{result}", result);
+                return Results.Created($"/api/supplier/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

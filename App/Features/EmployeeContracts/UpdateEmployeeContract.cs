@@ -2,6 +2,7 @@
 using App.Data.Database;
 using App.Data.Entities;
 using Carter;
+using CSharpFunctionalExtensions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using static App.Features.EmployeeContracts.UpdateEmployeeContract;
 namespace App.Features.EmployeeContracts;
 public static class UpdateEmployeeContract
 {
-    public class Command : IRequest<EmployeeContractResponse>
+    public class Command : IRequest<Result<EmployeeContractResponse, IEnumerable<string>>>
     {
         public Guid Id { get; set; }
         public string Type { get; set; } = string.Empty;
@@ -36,7 +37,7 @@ public static class UpdateEmployeeContract
             .WithMessage("Start date cannot be after today's date.");
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, EmployeeContractResponse>
+    internal sealed class Handler : IRequestHandler<Command, Result<EmployeeContractResponse, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -45,26 +46,26 @@ public static class UpdateEmployeeContract
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<EmployeeContractResponse> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<EmployeeContractResponse, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return null;
+                return Result.Failure<EmployeeContractResponse, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
             var employee = await _applicationDbContext.Employees
                     .Where(p => p.Id == request.EmployeeId)
                 .FirstOrDefaultAsync(cancellationToken);
             if (employee == null)
             {
-                return null;
+                return Result.Failure<EmployeeContractResponse, IEnumerable<string>>(new List<string> { "Invalid employeeId value" });
             }
             var employeePosition = await _applicationDbContext.EmployeePositions
                     .Where(p => p.Id == request.EmployeePositionId)
                 .FirstOrDefaultAsync(cancellationToken);
             if (employeePosition == null)
             {
-                return null;
+                return Result.Failure<EmployeeContractResponse, IEnumerable<string>>(new List<string> { "Invalid employeePositionId value" });
             }
             var employeeContractResponse = await _applicationDbContext.EmployeeContracts
                 .Where(p => p.Id == request.Id)
@@ -83,7 +84,7 @@ public static class UpdateEmployeeContract
 
             if (employeeContractResponse is null)
             {
-                return null;
+                return Result.Failure<EmployeeContractResponse, IEnumerable<string>>(new List<string> { "Invalid employeeContractId value" });
             }
 
             var updatedEmployeeContract = new EmployeeContract
@@ -108,13 +109,8 @@ public static class UpdateEmployeeContract
                 EmployeePosition = employeePosition
             };
 
-            // Attach the updated entity
             _applicationDbContext.Attach(updatedEmployeeContract);
-
-            // Set the entity state to modified
             _applicationDbContext.Entry(updatedEmployeeContract).State = EntityState.Modified;
-
-            // Save changes to the database
             await _applicationDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return updatedEmployeeContractResponse;
@@ -145,13 +141,13 @@ public class UpdateEmployeeContractEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != null)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/employeeContract/{result}", result);
+                return Results.Created($"/api/employeeContract/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

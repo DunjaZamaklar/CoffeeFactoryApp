@@ -17,7 +17,7 @@ namespace App.Data.Database
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
 
         public DbSet<SupplyOrder> SupplyOrders { get; set; }
-
+        public DbSet<SupplyItem> SupplyItems { get; set; }
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

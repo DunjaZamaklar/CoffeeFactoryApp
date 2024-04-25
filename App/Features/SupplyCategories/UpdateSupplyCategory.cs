@@ -2,6 +2,7 @@
 using App.Data.Database;
 using App.Data.Entities;
 using Carter;
+using CSharpFunctionalExtensions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using static App.Features.SupplyCategories.UpdateSupplyCategory;
 namespace App.Features.SupplyCategories;
 public static class UpdateSupplyCategory
 {
-    public class Command : IRequest<SupplyCategoryResponse>
+    public class Command : IRequest<Result<SupplyCategoryResponse, IEnumerable<string>>>
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -24,7 +25,7 @@ public static class UpdateSupplyCategory
             RuleFor(c => c.Name).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, SupplyCategoryResponse>
+    internal sealed class Handler : IRequestHandler<Command, Result<SupplyCategoryResponse, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -33,9 +34,13 @@ public static class UpdateSupplyCategory
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<SupplyCategoryResponse> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<SupplyCategoryResponse, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
-
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!validationResult.IsValid)
+            {
+                return Result.Failure<SupplyCategoryResponse, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
             var supplyCategoryResponse = await _applicationDbContext.SupplyCategories
                 .Where(p => p.Id == request.Id)
                 .Select(p => new SupplyCategoryResponse
@@ -49,7 +54,7 @@ public static class UpdateSupplyCategory
 
             if (supplyCategoryResponse is null)
             {
-                return null;
+                return Result.Failure<SupplyCategoryResponse, IEnumerable<string>>(new List<string> { "Invalid supplyCategoryId value" });
             }
 
             var updatedSupplyCategory = new SupplyCategory
@@ -99,13 +104,13 @@ public class UpdateSupplyCategoryEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != null)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/supplyCategory/{result}", result);
+                return Results.Created($"/api/supplyCategory/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

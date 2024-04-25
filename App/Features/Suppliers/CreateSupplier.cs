@@ -7,11 +7,12 @@ using MediatR;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Suppliers.CreateSupplier;
+using CSharpFunctionalExtensions;
 
 namespace App.Features.Suppliers;
 public static class CreateSupplier
 {
-    public class Command : IRequest<Guid>
+    public class Command : IRequest<Result<Guid, IEnumerable<string>>>
     {
         public string Name { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
@@ -33,7 +34,7 @@ public static class CreateSupplier
             RuleFor(c => c.Address).NotEmpty();
         }
     }
-    internal sealed class Handler : IRequestHandler<Command, Guid>
+    internal sealed class Handler : IRequestHandler<Command, Result<Guid, IEnumerable<string>>>
     {
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IValidator<Command> _validator;
@@ -42,12 +43,12 @@ public static class CreateSupplier
             _applicationDbContext = applicationDbContext;
             _validator = validator;
         }
-        public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Guid, IEnumerable<string>>> Handle(Command request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
-                return Guid.Empty;
+                return Result.Failure<Guid, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
             var supplier = new Supplier
             {
@@ -88,13 +89,13 @@ public class SupplierEndpoint : CarterModule
 
             var result = await sender.Send(command).ConfigureAwait(false);
 
-            if (result != Guid.Empty)
+            if (result.IsSuccess)
             {
-                return Results.Created($"/api/supplier/{result}", result);
+                return Results.Created($"/api/supplier/{result.Value}", result.Value);
             }
             else
             {
-                return Results.BadRequest("Invalid request or validation failed.");
+                return Results.BadRequest(result.Error);
             }
         });
     }

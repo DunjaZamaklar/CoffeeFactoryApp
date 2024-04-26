@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using App.Data.Entities;
 
 namespace App.Contracts;
 public class EmployeeResponse
@@ -17,4 +18,5 @@ public class EmployeeResponse
     public string Email { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public UserRole Role { get; set; } 
 }

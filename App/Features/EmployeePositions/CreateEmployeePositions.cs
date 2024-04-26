@@ -78,6 +78,6 @@ public class EmployeePositionEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

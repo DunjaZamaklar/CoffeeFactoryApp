@@ -36,7 +36,8 @@ public static class GetEmployees
                     PhoneNumber = p.PhoneNumber,
                     Email = p.Email,
                     Username = p.Username,
-                    Status = p.Status
+                    Status = p.Status,
+                    Role = p.Role
                 })
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -63,6 +64,6 @@ public class GetAllEmployeesEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

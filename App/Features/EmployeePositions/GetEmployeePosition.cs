@@ -62,6 +62,6 @@ public class GetEmployeePositionEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

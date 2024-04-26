@@ -78,6 +78,6 @@ public class SupplyOrderStatusEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

@@ -24,5 +24,7 @@ namespace App.Data.Entities
         [PasswordPropertyText]
         public string Password { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+
+        public UserRole? Role { get; set; }
     }
 }

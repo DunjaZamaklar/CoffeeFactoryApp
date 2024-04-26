@@ -43,7 +43,7 @@ public class GetAllSupplyOrderStatusEndpoint : CarterModule
 {
     public GetAllSupplyOrderStatusEndpoint() : base("/api/supplyOrderStatus")
     {
-
+        
     }
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
@@ -56,6 +56,6 @@ public class GetAllSupplyOrderStatusEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

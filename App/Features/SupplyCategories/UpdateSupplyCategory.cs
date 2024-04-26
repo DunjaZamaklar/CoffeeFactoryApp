@@ -112,6 +112,6 @@ public class UpdateSupplyCategoryEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

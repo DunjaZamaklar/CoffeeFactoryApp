@@ -66,6 +66,6 @@ public class DeleteEmployeeContractEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("AdminPolicy");
     }
 }

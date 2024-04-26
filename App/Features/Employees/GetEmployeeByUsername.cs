@@ -38,7 +38,8 @@ public static class GetEmployeeByUsername
                     PhoneNumber = p.PhoneNumber,
                     Email = p.Email,
                     Username = p.Username,
-                    Status = p.Status
+                    Status = p.Status,
+                    Role = p.Role
                 })
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -69,6 +70,6 @@ public class GetEmployeeByUsernameEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

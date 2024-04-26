@@ -123,6 +123,6 @@ public class SupplyOrderItemEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

@@ -78,6 +78,6 @@ public class SupplyCategoryEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization( "SuperUserPolicy");
     }
 }

@@ -71,6 +71,6 @@ public class GetAllSupplyOrderItemsEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

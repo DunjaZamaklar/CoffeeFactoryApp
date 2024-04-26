@@ -2,6 +2,7 @@
 using Carter;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace App.Extensions
 {

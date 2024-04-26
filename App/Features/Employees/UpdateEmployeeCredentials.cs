@@ -57,7 +57,8 @@ public static class UpdateEmployeeCredentials
                     PhoneNumber = p.PhoneNumber,
                     Email = p.Email,
                     Username = p.Username,
-                    Status = p.Status
+                    Status = p.Status,
+                    Role = p.Role
                 })
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -81,7 +82,8 @@ public static class UpdateEmployeeCredentials
                 Email = employeeResponse.Email,
                 Username = request.UpdatedUsername,
                 Password = request.Password,
-                Status = employeeResponse.Status
+                Status = employeeResponse.Status,
+                Role = employeeResponse.Role
             };
 
 
@@ -126,6 +128,6 @@ public class UpdateEmployeePasswordEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

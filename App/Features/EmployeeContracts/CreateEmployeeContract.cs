@@ -108,6 +108,6 @@ public class EmployeeContractEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("AdminPolicy");
     }
 }

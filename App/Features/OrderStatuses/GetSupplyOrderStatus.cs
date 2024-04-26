@@ -2,6 +2,7 @@
 using App.Data.Database;
 using Carter;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using static App.Features.OrderStatuses.GetSupplyOrderStatus;
 
@@ -53,7 +54,7 @@ public class GetSupplyOrderStatusEndpoint : CarterModule
     }
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("/{id}", async (Guid id, ISender sender) =>
+        app.MapGet("/{id}", [Authorize] async (Guid id, ISender sender) =>
         {
             var query = new GetSupplyOrderStatus.Query { Id = id };
             var result = await sender.Send(query).ConfigureAwait(false);
@@ -62,6 +63,6 @@ public class GetSupplyOrderStatusEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

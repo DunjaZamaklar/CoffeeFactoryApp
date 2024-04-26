@@ -60,6 +60,6 @@ public class GetAllEmployeeContractsEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

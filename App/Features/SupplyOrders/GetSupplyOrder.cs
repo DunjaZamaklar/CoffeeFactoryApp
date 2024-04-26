@@ -89,6 +89,6 @@ public class GetSupplyOrderEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

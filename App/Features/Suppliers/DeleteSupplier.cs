@@ -66,6 +66,6 @@ public class DeleteSupplierEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("AdminPolicy", "SuperUserPolicy");
     }
 }

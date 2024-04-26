@@ -67,6 +67,6 @@ public class DeleteSupplyCatgoryEndpoint : CarterModule
             {
                 return Results.NotFound(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

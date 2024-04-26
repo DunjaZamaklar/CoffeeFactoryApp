@@ -135,6 +135,6 @@ public class UpdateSupplierEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("AdminPolicy", "SuperUserPolicy");
     }
 }

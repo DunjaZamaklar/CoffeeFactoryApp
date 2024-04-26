@@ -59,6 +59,6 @@ public class GetAllSuppliesEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

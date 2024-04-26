@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using static App.Features.Employees.CreateEmployee;
 using CSharpFunctionalExtensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace App.Features.Employees;
 public static class CreateEmployee
@@ -56,6 +57,11 @@ public static class CreateEmployee
             {
                 return Result.Failure<Guid, IEnumerable<string>>(validationResult.Errors.Select(e => e.ErrorMessage));
             }
+
+            var employeeRole = await _applicationDbContext.UserRoles
+                  .Where(p => p.Name == "User")
+             .FirstOrDefaultAsync(cancellationToken);
+
             var employee = new Employee
             {
                 Id = Guid.NewGuid(),
@@ -68,7 +74,8 @@ public static class CreateEmployee
                 Email = request.Email,
                 Username = request.Username,
                 Password = request.Password,
-                Status = request.Status
+                Status = request.Status,
+                Role = employeeRole
             };
 
             _applicationDbContext.Add(employee);
@@ -111,6 +118,6 @@ public class EmployeeEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("AdminPolicy");
     }
 }

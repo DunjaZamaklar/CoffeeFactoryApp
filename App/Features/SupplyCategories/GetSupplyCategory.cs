@@ -62,6 +62,6 @@ public class GetSupplyCategoryEndpoint : CarterModule
                 return null;
             }
             return result;
-        });
+        }).RequireAuthorization("UserPolicy");
     }
 }

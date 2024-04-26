@@ -171,6 +171,6 @@ public class UpdateSupplyOrderEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

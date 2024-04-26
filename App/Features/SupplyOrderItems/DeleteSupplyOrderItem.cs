@@ -91,6 +91,6 @@ public class DeleteSupplyOrderItemEndpoint : CarterModule
             {
                 return Results.NotFound(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }

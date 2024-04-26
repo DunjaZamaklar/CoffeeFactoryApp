@@ -72,7 +72,8 @@ public static class UpdateEmployee
                     PhoneNumber = p.PhoneNumber,
                     Email = p.Email,
                     Username = p.Username,
-                    Status = p.Status
+                    Status = p.Status,
+                    Role = p.Role
                 })
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -94,7 +95,8 @@ public static class UpdateEmployee
                 Email = request.Email,
                 Username = request.Username,
                 Password = request.Password,
-                Status = request.Status
+                Status = request.Status,
+                Role = employeeResponse.Role
             };
 
             var updatedEmployeeResponse = new EmployeeResponse 
@@ -108,7 +110,8 @@ public static class UpdateEmployee
                 PhoneNumber = request.PhoneNumber,
                 Email = request.Email,
                 Username = request.Username,
-                Status = request.Status
+                Status = request.Status,
+                Role = employeeResponse.Role
             };
 
             // Attach the updated entity
@@ -160,6 +163,6 @@ public class UpdateEmployeeEndpoint : CarterModule
             {
                 return Results.BadRequest(result.Error);
             }
-        });
+        }).RequireAuthorization("SuperUserPolicy");
     }
 }
